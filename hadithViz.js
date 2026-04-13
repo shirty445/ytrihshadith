@@ -1115,7 +1115,7 @@ $(function () {
     $("#submit").prop("disabled", true);
 
     document.getElementById("draw").innerHTML =
-      '<span class="spinner-border spinner-border-sm"></span> Loading..';
+      '<span class="spinner-border spinner-border-sm"></span> <span class="lang-texten">Loading..</span><span class="lang-textar">جاري التحميل..</span>';
     prepareData();
   });
 });
@@ -1136,7 +1136,7 @@ $(function () {
     $("#submit").prop("disabled", true);
 
     document.getElementById("submit").innerHTML =
-      '<span class="spinner-border spinner-border-sm"></span> Loading..';
+      '<span class="spinner-border spinner-border-sm"></span> <span class="lang-texten">Loading..</span><span class="lang-textar">جاري التحميل..</span>';
 
     for (var p = 0; p < args.length; p++) {
       args[p]["value"] = document.getElementById(args[p]["key"]).value;
@@ -1250,8 +1250,8 @@ function enableButton(isBoth) {
   if (isBoth) {
     $("#draw").prop("disabled", false);
   }
-  document.getElementById("submit").innerHTML = "Submit بحث";
-  document.getElementById("draw").innerHTML = "Draw رسم";
+  document.getElementById("submit").innerHTML = '<span class="fa fa-search"></span> <span class="lang-texten">Submit</span><span class="lang-textar">بحث</span>';
+  document.getElementById("draw").innerHTML = '<span class="fa fa-project-diagram"></span> <span class="lang-texten">Draw</span><span class="lang-textar">رسم</span>';
 }
 
 function now() {
@@ -1847,4 +1847,79 @@ function swtichThemeColor(){
 function swtichDotification(){
   g_dotified = !g_dotified;
 
+}
+
+function exportToDrawio() {
+  if (!result_graph || result_graph.length === 0) {
+    alert("Please draw the tree first.");
+    return;
+  }
+
+  var xml = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>';
+
+  var nodeIdMap = {};
+  var ySpacing = 150;
+  var xSpacing = 250;
+
+  var currentX = 0;
+  var layerXs = {};
+
+  for (var i = 0; i < result_graph.length; i++) {
+    var node = result_graph[i];
+    var nid = node["info"]["node"];
+    var rank = node["info"]["rank_in_graph"] || 0;
+    
+    if (layerXs[rank] === undefined) {
+      layerXs[rank] = 0;
+    }
+    
+    var x = rank * xSpacing;
+    var y = layerXs[rank] * ySpacing + 50;
+    layerXs[rank]++;
+
+    var narrator = lookupNarrator(nid);
+    var name = narrator['name'].split(" ").slice(0, 4).join(" ");
+    var label = nid + "\\n" + name;
+    var gradeCol = gradeToColor(getNarratorGrade(nid));
+    
+    var mxId = "N" + nid;
+    nodeIdMap[nid] = mxId;
+
+    var style = "rounded=1;whiteSpace=wrap;html=1;fillColor=" + gradeCol + ";fontColor=#ffffff;strokeColor=#ffffff;";
+    
+    xml += '<mxCell id="' + mxId + '" value="' + label + '" style="' + style + '" vertex="1" parent="1"><mxGeometry x="' + x + '" y="' + y + '" width="120" height="60" as="geometry"/></mxCell>';
+  }
+
+  var edgeIdCounter = 0;
+  for (var i = 0; i < result_graph.length; i++) {
+    var node = result_graph[i];
+    var sourceId = "N" + node["info"]["node"];
+
+    for (var e = 0; e < node["edges"].length; e++) {
+      var edge = node["edges"][e];
+      var targetId = "N" + edge["target"];
+      var weight = edge["hadith_list"].length;
+
+      var edgeMxId = "E" + edgeIdCounter++;
+      var style = "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;";
+
+      xml += '<mxCell id="' + edgeMxId + '" value="' + weight + '" style="' + style + '" edge="1" parent="1" source="' + sourceId + '" target="' + targetId + '"><mxGeometry relative="1" as="geometry"/></mxCell>';
+    }
+  }
+
+  xml += '</root></mxGraphModel>';
+
+  // Compress and encode as per draw.io format
+  // For basic support, raw XML wrapped suitably is enough
+  var finalXml = encodeURIComponent(xml);
+
+  var blob = new Blob([xml], { type: 'application/xml' });
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement("a");
+  link.href = url;
+  link.download = "hadith-isnad-tree.drawio.xml";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

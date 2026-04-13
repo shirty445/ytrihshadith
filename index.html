@@ -2,15 +2,15 @@
 <html lang="ar">
 
 <head>
-  <title>KASHAF — Hadith Visual Search Engine</title>
+  <title>shirty's Hadith Matn and Isnad Analysis Tool</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta charset="UTF-8" />
-  <meta name="description" content="KASHAF: A visual search engine for Hadith Isnad tree analysis — محرك بحثي بصري لتتبع شجرة أسانيد الأحاديث النبوية" />
+  <meta name="description" content="shirty's Hadith Matn and Isnad Analysis Tool" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" />
@@ -62,7 +62,7 @@
         </a>
       </li>
       <li>
-        <a href="https://github.com/OmarShafie/hadith" title="About" target="_blank">
+        <a href="https://github.com/shirty445/ytrihshadith" title="About" target="_blank">
           <span class="fa fa-info-circle nav-icon"></span>
           <span>About</span>
         </a>
@@ -97,14 +97,13 @@
       <!-- Sanad Pattern -->
       <div class="form-group autocomplete">
         <label for="pattern-query"><span class="lang-texten">Sanad Pattern</span><span class="lang-textar" style="display:none">قالب إسناد</span></label>
-        <input type="search" class="form-control" id="pattern-query" dir="rtl" required
+        <input type="search" class="form-control" id="pattern-query" dir="auto" required
           placeholder="مثلا: @محمد بن مسلم" autocomplete="on" />
       </div>
 
-      <!-- Hadith Query -->
       <div class="form-group">
         <label for="hadith-query"><span class="lang-texten">Hadith Query</span><span class="lang-textar" style="display:none">عبارة البحث</span></label>
-        <input type="search" class="form-control" id="hadith-query" dir="rtl" value="" required
+        <input type="search" class="form-control" id="hadith-query" dir="auto" value="" required
           placeholder="مثلا: الأعمال بالنية" autocomplete="on" />
         <label id="pattern-error"></label>
       </div>
@@ -154,10 +153,10 @@
       <div class="form-group">
         <label><span class="lang-texten">Links Coloring</span><span class="lang-textar" style="display:none">تغيير العرض</span></label>
         <select id="sankey_view" class="form-control">
-          <option selected><span class="lang-texten">Group by Matn</span><span class="lang-textar" style="display:none">تمييز المتون بالألوان</span></option>
-          <option><span class="lang-texten">Group by Sanad</span><span class="lang-textar" style="display:none">تمييز الأسانيد بالألوان</span></option>
-          <option><span class="lang-texten">Multiple Matn Alignment</span><span class="lang-textar" style="display:none">مقارنة المتون بالألوان</span></option>
-          <option><span class="lang-texten">Connectivity Assessment</span><span class="lang-textar" style="display:none">تمييز الاتصال بالألوان</span></option>
+          <option data-en="Group by Matn" data-ar="تمييز المتون بالألوان" selected>Group by Matn</option>
+          <option data-en="Group by Sanad" data-ar="تمييز الأسانيد بالألوان">Group by Sanad</option>
+          <option data-en="Multiple Matn Alignment" data-ar="مقارنة المتون بالألوان">Multiple Matn Alignment</option>
+          <option data-en="Connectivity Assessment" data-ar="تمييز الاتصال بالألوان">Connectivity Assessment</option>
         </select>
       </div>
 
@@ -231,48 +230,55 @@
   <div class="main-content">
     <div class="top-nav-actions" style="position: absolute; top: 32px; right: 40px; display: flex; gap: 12px; z-index: 1000;">
       <button id="lang-toggle" class="btn btn-secondary btn-sm" onclick="toggleLanguage()">
-        <i class="fa fa-language"></i> <span class="lang-texten">عربي</span><span class="lang-textar" style="display:none">English</span>
+        <span class="lang-texten">عربي</span><span class="lang-textar" style="display:none">English</span>
       </button>
       <button id="theme-toggle" class="btn btn-secondary btn-sm" onclick="toggleTheme()">
         <i class="fa fa-adjust"></i> <span class="lang-texten">Theme</span><span class="lang-textar" style="display:none">المظهر</span>
       </button>
-      <a href="https://x.com/ytrihs" target="_blank" class="btn btn-primary btn-sm btn-icon" style="border-radius: 50%; width: 32px; height: 32px;">
-        <i class="fab fa-twitter"></i>
+      <a href="https://x.com/ytrihs" target="_blank" class="btn btn-primary btn-sm btn-icon" style="border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #000; color: #fff; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
       </a>
     </div>
 
     <div id="header">
-      <h1>KASHAF — The Hadith Visual Search Engine</h1>
+      <h1>shirty's Hadith Matn and Isnad Analysis Tool</h1>
       <h2>
-        محرك بحثي بصري لتتبع الأحاديث النبوية<br />
-        Visual analysis of Hadith Isnad tree
+        <span class="lang-texten">Visual analysis of Hadith Isnad tree</span><span class="lang-textar" style="display:none">محرك بحثي بصري لتتبع الأحاديث النبوية</span>
       </h2>
       <h2 id="debugger"></h2>
     </div>
 
     <!-- Legend -->
     <div class="my-legend">
-      <div class="legend-scale">
-        <ul class="legend-labels">
-          <li style="width: auto;"><span class="lang-texten">Narrator Grades</span><span class="lang-textar" style="display:none">الجرح والتعديل</span></li>
-          <li style="width: auto; margin-left: 24px;"><span class="lang-texten">Connectivity</span><span class="lang-textar" style="display:none">الاتصال</span></li>
-        </ul>
-        <ul class="legend-labels">
-          <li><span style="background:#002700;"></span>صحابي</li>
-          <li><span style="background:#005800;"></span>ثقة ثقة</li>
-          <li><span style="background:#008a00;"></span>ثقة</li>
-          <li><span style="background:#7cb840;"></span>صدوق</li>
-          <li><span style="background:#dde086;"></span>مقبول</li>
-          <li><span style="background:#fbb268;"></span>لين</li>
-          <li><span style="background:#ed6a57;"></span>ضعيف</li>
-          <li><span style="background:#de425b;"></span>منكر / متروك</li>
-          <li><span style="background:#a20025;"></span>كذاب</li>
-          <li><span style="background:silver;"></span>مجهول / مستور</li>
-          <li style="margin-left: 16px;"><span style="background:#004c6d;"></span>متصل</li>
-          <li><span style="background:#00aba9;"></span>منقطع (مكان)</li>
-          <li><span style="background:silver;"></span>منقطع (زمان)</li>
-          <li><span style="background:#d80073;"></span>منقطع</li>
-        </ul>
+      <div class="legend-scale" style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <div class="legend-title" style="margin-bottom: 8px;">
+            <span class="lang-texten">Narrator Grades</span><span class="lang-textar" style="display:none">الجرح والتعديل</span>
+          </div>
+          <ul class="legend-labels">
+            <li><span style="background:#002700;" class="color-circle"></span><span class="lang-texten">Sahabi (Companion)</span><span class="lang-textar" style="display:none">صحابي</span></li>
+            <li><span style="background:#005800;" class="color-circle"></span><span class="lang-texten">Thiqah Thiqah (Highly Trustworthy)</span><span class="lang-textar" style="display:none">ثقة ثقة</span></li>
+            <li><span style="background:#008a00;" class="color-circle"></span><span class="lang-texten">Thiqah (Trustworthy)</span><span class="lang-textar" style="display:none">ثقة</span></li>
+            <li><span style="background:#7cb840;" class="color-circle"></span><span class="lang-texten">Saduq (Truthful)</span><span class="lang-textar" style="display:none">صدوق</span></li>
+            <li><span style="background:#dde086;" class="color-circle"></span><span class="lang-texten">Maqbul (Acceptable)</span><span class="lang-textar" style="display:none">مقبول</span></li>
+            <li><span style="background:#fbb268;" class="color-circle"></span><span class="lang-texten">Layyin (Slightly Weak)</span><span class="lang-textar" style="display:none">لين</span></li>
+            <li><span style="background:#ed6a57;" class="color-circle"></span><span class="lang-texten">Da'if (Weak)</span><span class="lang-textar" style="display:none">ضعيف</span></li>
+            <li><span style="background:#de425b;" class="color-circle"></span><span class="lang-texten">Munkar / Matruk (Denounced / Abandoned)</span><span class="lang-textar" style="display:none">منكر / متروك</span></li>
+            <li><span style="background:#a20025;" class="color-circle"></span><span class="lang-texten">Kadhdhab (Liar)</span><span class="lang-textar" style="display:none">كذاب</span></li>
+            <li><span style="background:silver;" class="color-circle"></span><span class="lang-texten">Majhul / Mastur (Unknown / Obscured)</span><span class="lang-textar" style="display:none">مجهول / مستور</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="legend-title" style="margin-bottom: 8px;">
+            <span class="lang-texten">Connectivity</span><span class="lang-textar" style="display:none">الاتصال</span>
+          </div>
+          <ul class="legend-labels">
+            <li><span style="background:#004c6d;" class="color-circle"></span><span class="lang-texten">Muttasil (Connected)</span><span class="lang-textar" style="display:none">متصل</span></li>
+            <li><span style="background:#00aba9;" class="color-circle"></span><span class="lang-texten">Munqati' (Disconnected Location)</span><span class="lang-textar" style="display:none">منقطع (مكان)</span></li>
+            <li><span style="background:silver;" class="color-circle"></span><span class="lang-texten">Munqati' (Disconnected Time)</span><span class="lang-textar" style="display:none">منقطع (زمان)</span></li>
+            <li><span style="background:#d80073;" class="color-circle"></span><span class="lang-texten">Munqati' (Disconnected)</span><span class="lang-textar" style="display:none">منقطع</span></li>
+          </ul>
+        </div>
       </div>
       <span id="gradeTooltip">Tooltip text</span>
     </div>
@@ -281,8 +287,8 @@
     <div id="tree-container">
       <div class="empty-state" id="empty-state">
         <span class="fas fa-project-diagram empty-icon"></span>
-        <span>Search for hadiths and click <strong>Draw</strong> to visualize the Isnad tree</span>
-        <span style="font-family: var(--font-arabic); font-size: 13px; color: var(--text-muted);">
+        <span class="lang-texten">Search for hadiths and click <strong>Draw</strong> to visualize the Isnad tree</span>
+        <span class="lang-textar" style="display:none; font-family: var(--font-arabic); font-size: 13px; color: var(--text-muted);">
           ابحث عن الأحاديث ثم اضغط "رسم" لعرض شجرة الأسانيد
         </span>
       </div>
@@ -299,13 +305,16 @@
         <textarea id="mermaidCodeArea" spellcheck="false" dir="ltr" placeholder="Mermaid diagram code will appear here..."></textarea>
         <div class="code-export-actions">
           <button type="button" class="btn btn-secondary btn-sm" onclick="copyMermaidCode()">
-            <i class="fa fa-copy"></i> Copy
+            <i class="fa fa-copy"></i> <span class="lang-texten">Copy</span><span class="lang-textar" style="display:none">نسخ</span>
           </button>
           <button type="button" class="btn btn-primary btn-sm" onclick="reRenderMermaid()">
-            <i class="fa fa-sync-alt"></i> Re-render
+            <i class="fa fa-sync-alt"></i> <span class="lang-texten">Re-render</span><span class="lang-textar" style="display:none">تحديث</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" onclick="openInMermaidLive()">
-            <i class="fa fa-external-link-alt"></i> Open in Mermaid Live
+            <i class="fa fa-external-link-alt"></i> <span class="lang-texten">Open in Mermaid Live</span><span class="lang-textar" style="display:none">فتح في Mermaid</span>
+          </button>
+          <button type="button" class="btn btn-success btn-sm" onclick="exportToDrawio()" style="background-color: #f2931e; border-color: #f2931e; color: white;">
+            <i class="fa fa-file-export"></i> <span class="lang-texten">Export to draw.io</span><span class="lang-textar" style="display:none">تصدير إلى draw.io</span>
           </button>
         </div>
       </div>
@@ -684,6 +693,12 @@
       });
       // Refresh bootstrap select to update UI
       $('.selectpicker').selectpicker('refresh');
+      
+      // Update placeholders
+      var inputs = document.querySelectorAll('input[data-placeholder-en]');
+      inputs.forEach(function(inp) {
+        inp.placeholder = isAr ? inp.getAttribute('data-placeholder-ar') : inp.getAttribute('data-placeholder-en');
+      });
     }
 
     function toggleTheme() {

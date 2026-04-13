@@ -31,12 +31,12 @@
 
   /* Typography */
   --font-latin: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-arabic: 'Amiri', 'UthmanTN', serif;
+  --font-arabic: 'Noto Sans Arabic', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 
   /* Sizing */
   --sidebar-w: 68px;
-  --panel-w: 360px;
+  --panel-w: 500px;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -116,12 +116,7 @@ a:hover {
 }
 
 /* ---------- @font-face ---------- */
-@font-face {
-  font-family: "UthmanTN";
-  src: url("font/UthmanTN_v2-0/UthmanTN_v2-0.ttf") format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+/* Removed UthmanTN, using Noto Sans Arabic exclusively */
 
 /* ---------- Sidebar (Icon Rail) ---------- */
 #sidebar {
@@ -321,6 +316,8 @@ a:hover {
   letter-spacing: 0.8px;
   color: var(--text-secondary);
   margin-bottom: 8px;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .form-control {
@@ -371,6 +368,17 @@ select.form-control option {
   border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   transition: var(--transition);
+  padding: 10px 14px !important;
+  font-size: 14px;
+  display: block !important;
+  text-align: left;
+}
+
+.bootstrap-select .dropdown-toggle .filter-option {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .bootstrap-select .dropdown-toggle:focus {
@@ -578,10 +586,7 @@ input:focus + .switchSlider {
 #header h1 {
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), var(--accent-blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
   margin-bottom: 8px;
 }
 
@@ -625,15 +630,14 @@ input:focus + .switchSlider {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
   width: 100%;
 }
 
 .my-legend .legend-scale ul:first-child {
-  margin-bottom: 6px;
-  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .my-legend .legend-scale ul:first-child li {
@@ -642,25 +646,27 @@ input:focus + .switchSlider {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-secondary);
-  width: auto !important;
+  flex: 0 0 auto;
 }
 
 .my-legend .legend-scale ul li {
   display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  align-items: flex-start;
+  gap: 8px;
   font-size: 11px;
   color: var(--text-secondary);
-  white-space: nowrap;
-  font-family: var(--font-arabic);
+  white-space: normal;
+  line-height: 1.4;
+  margin-top: 2px;
 }
 
-.my-legend ul.legend-labels li span {
+.my-legend ul.legend-labels li span.color-circle {
   display: inline-block;
   width: 14px;
   height: 14px;
   border-radius: var(--radius-pill);
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 #gradeTooltip {
@@ -933,7 +939,6 @@ input:focus + .switchSlider {
 
 #rsz th, #rsz td {
   padding: 5px;
-  font-family: "UthmanTN";
   color: inherit;
   background: inherit;
 }
