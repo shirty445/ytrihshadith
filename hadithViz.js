@@ -1855,15 +1855,15 @@ function exportToDrawio() {
     return;
   }
 
-  var xml = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>';
+  var xml = '<mxGraphModel dx="1234" dy="756" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169"><root><mxCell id="0"/><mxCell id="1" parent="0"/>';
 
   var nodeIdMap = {};
   var ySpacing = 150;
   var xSpacing = 250;
 
-  var currentX = 0;
   var layerXs = {};
 
+  // First pass: organize nodes by rank (from top - companions to bottom - collectors)
   for (var i = 0; i < result_graph.length; i++) {
     var node = result_graph[i];
     var nid = node["info"]["node"];
@@ -1873,31 +1873,33 @@ function exportToDrawio() {
       layerXs[rank] = 0;
     }
     
-    var x = rank * xSpacing;
+    // X increases with rank (left to right) - companions at top/left, collectors at bottom/right
+    var x = rank * xSpacing + 50;
     var y = layerXs[rank] * ySpacing + 50;
     layerXs[rank]++;
 
     var narrator = lookupNarrator(nid);
     var name = narrator['name'].split(" ").slice(0, 4).join(" ");
-    var label = nid + "\\n" + name;
+    var label = nid + " " + name;
     var gradeCol = gradeToColor(getNarratorGrade(nid));
     
     var mxId = "N" + nid;
     nodeIdMap[nid] = mxId;
 
-    var style = "rounded=1;whiteSpace=wrap;html=1;fillColor=" + gradeCol + ";fontColor=#ffffff;strokeColor=#ffffff;";
+    var style = "rounded=1;whiteSpace=wrap;html=1;fillColor=" + gradeCol + ";fontColor=#ffffff;strokeColor=" + gradeCol + ";fontSize=12;";
     
     xml += '<mxCell id="' + mxId + '" value="' + label + '" style="' + style + '" vertex="1" parent="1"><mxGeometry x="' + x + '" y="' + y + '" width="120" height="60" as="geometry"/></mxCell>';
   }
 
+  // Second pass: add edges
   var edgeIdCounter = 0;
   for (var i = 0; i < result_graph.length; i++) {
     var node = result_graph[i];
-    var sourceId = "N" + node["info"]["node"];
+    var sourceId = nodeIdMap[node["info"]["node"]] || "N" + node["info"]["node"];
 
     for (var e = 0; e < node["edges"].length; e++) {
       var edge = node["edges"][e];
-      var targetId = "N" + edge["target"];
+      var targetId = nodeIdMap[edge["target"]] || "N" + edge["target"];
       var weight = edge["hadith_list"].length;
 
       var edgeMxId = "E" + edgeIdCounter++;
@@ -1909,17 +1911,22 @@ function exportToDrawio() {
 
   xml += '</root></mxGraphModel>';
 
-  // Compress and encode as per draw.io format
-  // For basic support, raw XML wrapped suitably is enough
-  var finalXml = encodeURIComponent(xml);
-
-  var blob = new Blob([xml], { type: 'application/xml' });
-  var url = URL.createObjectURL(blob);
-  var link = document.createElement("a");
-  link.href = url;
-  link.download = "hadith-isnad-tree.drawio.xml";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Try to open in draw.io directly
+  try {
+    var encoded = btoa(xml); // base64 encode
+    var drawioUrl = "https://app.diagrams.net/?mode=google#" + encoded;
+    window.open(drawioUrl, "_blank");
+  } catch (err) {
+    console.log("Error opening draw.io, falling back to download:", err);
+    // Fallback to download
+    var blob = new Blob([xml], { type: 'application/xml' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "hadith-isnad-tree.drawio";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 }

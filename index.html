@@ -285,6 +285,17 @@
 
     <!-- Tree Diagram Container -->
     <div id="tree-container">
+      <div class="zoom-controls" id="zoomControls">
+        <button class="zoom-btn" id="zoomIn" title="Zoom In (+)" onclick="zoomIn()">
+          <i class="fa fa-plus"></i>
+        </button>
+        <button class="zoom-btn" id="zoomOut" title="Zoom Out (-)" onclick="zoomOut()">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button class="zoom-btn" id="zoomReset" title="Reset View" onclick="resetZoom()">
+          <i class="fa fa-compress"></i>
+        </button>
+      </div>
       <div class="empty-state" id="empty-state">
         <span class="fas fa-project-diagram empty-icon"></span>
         <span class="lang-texten">Search for hadiths and click <strong>Draw</strong> to visualize the Isnad tree</span>
@@ -293,6 +304,17 @@
         </span>
       </div>
       <div id="mermaid-output"></div>
+    </div>
+
+    <!-- Matn Analysis Section -->
+    <div id="matn-section">
+      <div class="matn-section-header">
+        <h4><i class="fa fa-align-left"></i> <span class="lang-texten">Matn Analysis</span><span class="lang-textar" style="display:none">تحليل المتون</span></h4>
+        <button class="matn-section-close" onclick="closeMatnSection()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div id="matn-content"></div>
     </div>
 
     <!-- Mermaid Code Export Panel -->
@@ -433,6 +455,9 @@
       // Hide empty state
       var emptyState = document.getElementById("empty-state");
       if (emptyState) emptyState.style.display = "none";
+
+      // Show matn analysis section
+      showMatnSection();
 
       renderMermaidFromCode(currentMermaidCode);
       closeNav();
@@ -586,6 +611,12 @@
       try {
         var result = await mermaid.render(id, code);
         container.innerHTML = result.svg;
+        
+        // Initialize zoom and pan after rendering
+        setTimeout(function() {
+          initZoomPan();
+          resetZoom();
+        }, 100);
       } catch (err) {
         container.innerHTML = '<div style="color:var(--danger);padding:20px;font-family:var(--font-mono);font-size:13px;">Mermaid rendering error:<br>' + err.message + '</div>';
         console.error("Mermaid render error:", err);
@@ -715,6 +746,134 @@
       if(typeof drawMermaidTree === 'function' && result_graph.length > 0) {
           drawMermaidTree(); // re-render if tree is generated
       }
+    }
+
+    // ---- Zoom and Pan Functionality ----
+    var zoomLevel = 1;
+    var panX = 0;
+    var panY = 0;
+    var isPanning = false;
+    var panStartX = 0;
+    var panStartY = 0;
+
+    function initZoomPan() {
+      var container = document.getElementById("mermaid-output");
+      if (!container) return;
+
+      container.addEventListener('wheel', handleZoom, { passive: false });
+      container.addEventListener('mousedown', startPan);
+      document.addEventListener('mousemove', handlePan);
+      document.addEventListener('mouseup', stopPan);
+      container.addEventListener('touchstart', startPan);
+      document.addEventListener('touchmove', handlePan, { passive: false });
+      document.addEventListener('touchend', stopPan);
+    }
+
+    function handleZoom(event) {
+      event.preventDefault();
+      var delta = event.deltaY > 0 ? -0.1 : 0.1;
+      var newZoom = zoomLevel + delta;
+      
+      // Constrain zoom level
+      if (newZoom > 0.5 && newZoom < 3) {
+        zoomLevel = newZoom;
+        applyTransform();
+      }
+    }
+
+    function startPan(event) {
+      isPanning = true;
+      if (event.touches) {
+        panStartX = event.touches[0].clientX - panX;
+        panStartY = event.touches[0].clientY - panY;
+      } else {
+        panStartX = event.clientX - panX;
+        panStartY = event.clientY - panY;
+      }
+    }
+
+    function handlePan(event) {
+      if (!isPanning) return;
+      
+      if (event.touches) {
+        panX = event.touches[0].clientX - panStartX;
+        panY = event.touches[0].clientY - panStartY;
+      } else {
+        panX = event.clientX - panStartX;
+        panY = event.clientY - panStartY;
+      }
+      applyTransform();
+    }
+
+    function stopPan() {
+      isPanning = false;
+    }
+
+    function applyTransform() {
+      var svg = document.querySelector("#mermaid-output svg");
+      if (svg) {
+        svg.style.transform = "translate(" + panX + "px, " + panY + "px) scale(" + zoomLevel + ")";
+      }
+    }
+
+    function zoomIn() {
+      zoomLevel = Math.min(zoomLevel + 0.2, 3);
+      applyTransform();
+    }
+
+    function zoomOut() {
+      zoomLevel = Math.max(zoomLevel - 0.2, 0.5);
+      applyTransform();
+    }
+
+    function resetZoom() {
+      zoomLevel = 1;
+      panX = 0;
+      panY = 0;
+      applyTransform();
+    }
+
+    // ---- Matn Display and Export ----
+    function showMatnSection() {
+      var matnSection = document.getElementById("matn-section");
+      if (matnSection) {
+        matnSection.classList.add("show");
+        generateMatnAnalysis();
+      }
+    }
+
+    function closeMatnSection() {
+      var matnSection = document.getElementById("matn-section");
+      if (matnSection) {
+        matnSection.classList.remove("show");
+      }
+    }
+
+    function generateMatnAnalysis() {
+      var matnContent = document.getElementById("matn-content");
+      if (!matnContent || !matching_hadiths || matching_hadiths.length === 0) return;
+
+      var html = '<table class="matn-analysis-table"><thead><tr>';
+      html += '<th style="text-align: right;"><span class="lang-texten">Book</span><span class="lang-textar" style="display:none">الكتاب</span></th>';
+      html += '<th style="text-align: right;"><span class="lang-texten">Hadith ID</span><span class="lang-textar" style="display:none">رقم الحديث</span></th>';
+      html += '<th style="text-align: right;"><span class="lang-texten">Matn</span><span class="lang-textar" style="display:none">المتن</span></th>';
+      html += '</tr></thead><tbody>';
+
+      for (var i = 0; i < matching_hadiths.length; i++) {
+        var hadithIdx = matching_hadiths[i]["index"];
+        var hadithId = getHadithNum(HadithArr, hadithIdx);
+        var matn = getHadithMatn(HadithArr, hadithIdx);
+        var title = getTitle(HadithArr, hadithIdx);
+        
+        html += '<tr>';
+        html += '<td>' + (title ? title.substring(0, 30) + '...' : 'N/A') + '</td>';
+        html += '<td>' + hadithId + '</td>';
+        html += '<td dir="rtl">' + (matn ? matn.substring(0, 100) + '...' : 'No Matn') + '</td>';
+        html += '</tr>';
+      }
+
+      html += '</tbody></table>';
+      matnContent.innerHTML = html;
     }
   </script>
 </body>
